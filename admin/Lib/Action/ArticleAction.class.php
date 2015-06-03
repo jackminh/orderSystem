@@ -1,6 +1,7 @@
 <?php
+
 // 产品分类显示，增加，修改，删除
-/*  
+/*
 
    import("@.ORG.Category");
 $cat = new Category('Category', array('cid', 'fid', 'name', 'fullname'));
@@ -23,154 +24,171 @@ $s = $cat->del(10);                 //删除分类id=10的分类
                   }
      //*******************自动验证模板结束/  	
 
-  */ 
-   
-class ArticleAction extends CommonAction {
-    	
- /*   */   
-   
-   
- 
-  public function index(){
-	 $Article=M('Article');
-	 import('ORG.Util.Page');// 导入分页类
-        $count      = $Article->count();// 查询满足要求的总记录数
-        $Page       = new Page($count,10);// 实例化分页类 传入总记录数和每页显示的记录数
-        $show       = $Page->show();// 分页显示输出
-          // 进行分页数据查询 注意limit方法的参数要使用Page类的属性
-        $plist = $Article->limit($Page->firstRow.','.$Page->listRows)->order('aid desc')->select();
-        $this->assign('page',$show);// 赋值分页输出
-	    $this->assign('alist',$plist);
-        $this->display();     
-   } 
-     public function alist(){
-     $map['acid']=$this->_get('id');
-	 $Article=M('Article');
-	 import('ORG.Util.Page');// 导入分页类
-        $count      = $Article->where($map)->count();// 查询满足要求的总记录数
-        $Page       = new Page($count,10);// 实例化分页类 传入总记录数和每页显示的记录数
-        $show       = $Page->show();// 分页显示输出
-        $plist = $Article->where($map)->limit($Page->firstRow.','.$Page->listRows)->order('aid desc')->select();
-        $this->assign('page',$show);// 赋值分页输出
-	    $this->assign('alist',$plist);
+*/
+
+class ArticleAction extends CommonAction
+{
+    
+    /*   */
+    
+    public function index() {
+        $Article = M('Article');
+        import('ORG.Util.Page');
+         // 导入分页类
+        $count = $Article->count();
+         // 查询满足要求的总记录数
+        $Page = new Page($count, 10);
+         // 实例化分页类 传入总记录数和每页显示的记录数
+        $show = $Page->show();
+         // 分页显示输出
+        // 进行分页数据查询 注意limit方法的参数要使用Page类的属性
+        $plist = $Article->limit($Page->firstRow . ',' . $Page->listRows)->order('aid desc')->select();
+        $this->assign('page', $show);
+         // 赋值分页输出
+        $this->assign('alist', $plist);
         $this->display();
-     
-   } 
-     public function add(){
-           import("ORG.Util.Category");
-      $cat = new Category('Article_cat', array('acid', 'afid', 'aname', 'cname'));
-      $clist= $cat->getList();               //获取分类结构
-	 $this->assign('clist',$clist);
-	 $this->display();
-   } 
-     public function addsave(){
-	  $Article=D('Article');
-	 $map['acid']=I('acid');
-	 $map['atitle']=I('atitle');
-	 $map['create_time']=time();
-	 $map['alink']=I('alink');
-	  $map['content']=htmlspecialchars(stripslashes($_POST['content'])); 
-	  $res =$Article->create($map);
-          if (!$res){$this->error($Article->getError());    
-             } else {
-			       $result = $Article->add($map);              
-                   if($result){$this->success('新增成功');}
-				  else {$this->error('新增失败');}
-                  }
-   } 
-     public function edit(){
-	 $id=$this->_get('id');
-	$Article=M('Article');
-	$item= $Article->find($id); 
-	 import("ORG.Util.Category");
-      $cat = new Category('Article_cat', array('acid', 'afid', 'aname', 'cname'));
-      $clist= $cat->getList();               //获取分类结构
-	 $this->assign('clist',$clist);
-	$this->assign('item',$item);
-    $this->display();
-   }  
-       public function editsave(){
-	   $id=I('aid');
-	   if(!$id){$this->error('文章id不可以为空');}//判定ＩＤ是否为空
-	   $data["aid"] =$id;
-	   
-	     	$Article=D('Article');
-	        $map['acid']=I('acid');
-	        $map['atitle']=I('atitle');
-	        $map['create_time']=time();
-			$map['sort']=I('sort');
-				 $mallid=I('mallid');
-	        $map['content']=htmlspecialchars(stripslashes($_POST['content'])); 
-	       $res =$Article->create();
-            if (!$res){$this->error($Article->getError());    
-               } else {
-		 	       $result = $Article->where($data)->save($map);               
-                    if($result){$this->success('修改成功',U('Article/index'));}
-		  		   else {$this->error('新增失败');}
-                   }
-   }  
-     public function delete(){
-	$Article=M('Article');
-	    $id=$this->_get('id');
-		if (!$id){//判定是否为空
-		$this->error('商品不可以为空');
-		}
-		else{
-		$data['aid']=$id;
-		$result=$Article->where($data)->delete();
-		if($result){
-	$this->redirect(U('Article/index'));
-} else {
-    $this->error('删除失败');
-}}
-   }   
-     public function updatetop(){
-	 	$Article=M('Article');
-	    $id=$this->_get('id');
-		if (!$id){//判定是否为空
-		$this->error('文章id不可以为空');
-		}
-		else{
-		$map['aid']=$id;
-		$data['top']=1;
-		$result=$Article->where($map)->save($data); 
-		if($result){
-	$this->redirect(U('Article/index'));
-} else {
-    $this->error('推荐失败');
-}}
-   }  
-     public function deletetop(){
-	 	$Article=M('Article');
-	    $id=$this->_get('id');
-		if (!$id){//判定是否为空
-		$this->error('文章id不可以为空');
-		}
-		else{
-		$map['aid']=$id;
-		$data['top']=0;
-		$result=$Article->where($map)->save($data); 
-		if($result){
-	$this->redirect(U('Article/index'));
-} else {
-    $this->error('推荐失败');
-}}
-   }  
-
-
-
-   
-   
-   
-   
-  
-   
-   
-   
-   
-   
-   
-   
-   
-   
+    }
+    public function alist() {
+        $map['acid'] = $this->_get('id');
+        $Article = M('Article');
+        import('ORG.Util.Page');
+         // 导入分页类
+        $count = $Article->where($map)->count();
+         // 查询满足要求的总记录数
+        $Page = new Page($count, 10);
+         // 实例化分页类 传入总记录数和每页显示的记录数
+        $show = $Page->show();
+         // 分页显示输出
+        $plist = $Article->where($map)->limit($Page->firstRow . ',' . $Page->listRows)->order('aid desc')->select();
+        $this->assign('page', $show);
+         // 赋值分页输出
+        $this->assign('alist', $plist);
+        $this->display();
+    }
+    public function add() {
+        import("ORG.Util.Category");
+        $cat = new Category('Article_cat', array('acid', 'afid', 'aname', 'cname'));
+        $clist = $cat->getList();
+         //获取分类结构
+        $this->assign('clist', $clist);
+        $this->display();
+    }
+    public function addsave() {
+        $Article = D('Article');
+        $map['acid'] = I('acid');
+        $map['atitle'] = I('atitle');
+        $map['create_time'] = time();
+        $map['alink'] = I('alink');
+        $map['content'] = htmlspecialchars(stripslashes($_POST['content']));
+        $res = $Article->create($map);
+        if (!$res) {
+            $this->error($Article->getError());
+        } 
+        else {
+            $result = $Article->add($map);
+            if ($result) {
+                $this->success('新增成功');
+            } 
+            else {
+                $this->error('新增失败');
+            }
+        }
+    }
+    public function edit() {
+        $id = $this->_get('id');
+        $Article = M('Article');
+        $item = $Article->find($id);
+        import("ORG.Util.Category");
+        $cat = new Category('Article_cat', array('acid', 'afid', 'aname', 'cname'));
+        $clist = $cat->getList();
+         //获取分类结构
+        $this->assign('clist', $clist);
+        $this->assign('item', $item);
+        $this->display();
+    }
+    public function editsave() {
+        $id = I('aid');
+        if (!$id) {
+            $this->error('文章id不可以为空');
+        }
+         //判定ＩＤ是否为空
+        $data["aid"] = $id;
+        
+        $Article = D('Article');
+        $map['acid'] = I('acid');
+        $map['atitle'] = I('atitle');
+        $map['create_time'] = time();
+        $map['sort'] = I('sort');
+        $mallid = I('mallid');
+        $map['content'] = htmlspecialchars(stripslashes($_POST['content']));
+        $res = $Article->create();
+        if (!$res) {
+            $this->error($Article->getError());
+        } 
+        else {
+            $result = $Article->where($data)->save($map);
+            if ($result) {
+                $this->success('修改成功', U('Article/index'));
+            } 
+            else {
+                $this->error('新增失败');
+            }
+        }
+    }
+    public function delete() {
+        $Article = M('Article');
+        $id = $this->_get('id');
+        if (!$id) {
+             //判定是否为空
+            $this->error('商品不可以为空');
+        } 
+        else {
+            $data['aid'] = $id;
+            $result = $Article->where($data)->delete();
+            if ($result) {
+                $this->redirect(U('Article/index'));
+            } 
+            else {
+                $this->error('删除失败');
+            }
+        }
+    }
+    public function updatetop() {
+        $Article = M('Article');
+        $id = $this->_get('id');
+        if (!$id) {
+             //判定是否为空
+            $this->error('文章id不可以为空');
+        } 
+        else {
+            $map['aid'] = $id;
+            $data['top'] = 1;
+            $result = $Article->where($map)->save($data);
+            if ($result) {
+                $this->redirect(U('Article/index'));
+            } 
+            else {
+                $this->error('推荐失败');
+            }
+        }
+    }
+    public function deletetop() {
+        $Article = M('Article');
+        $id = $this->_get('id');
+        if (!$id) {
+             //判定是否为空
+            $this->error('文章id不可以为空');
+        } 
+        else {
+            $map['aid'] = $id;
+            $data['top'] = 0;
+            $result = $Article->where($map)->save($data);
+            if ($result) {
+                $this->redirect(U('Article/index'));
+            } 
+            else {
+                $this->error('推荐失败');
+            }
+        }
+    }
 }
